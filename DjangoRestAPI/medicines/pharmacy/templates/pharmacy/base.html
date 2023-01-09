@@ -1,0 +1,123 @@
+{% load static %}<!--Подключение статических внешних файлов-->
+{% load apt_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+    <link type="text/css" href="{% static 'pharmacy/css/styles.css' %}" rel="stylesheet"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="{% static 'pharmacy/images/main.ico' %}" type="image/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<table class="table-page" border=0 cellpadding="0" cellspacing="0">
+    <tr>
+        <td valign=top>
+            {% block mainmenu %}
+            <div class="header">
+                <ul id="mainmenu" class="mainmenu">
+
+                    <div class="text-field">
+
+                        <div class="text-field__group">
+
+                            <form action="{%url 'search' %}" method="get">
+                                <label class="text-field__label" for="search">ПОИСК:</label>
+                                <input class="text-field__input" type="search" id="search" name="query"  placeholder="введите поисковый запрос">
+                                <button class="text-field__btn" type="submit">Найти</button>
+                            </form>
+                        </div>
+                    </div>
+                    </li>
+
+                </ul>
+                <div class="clear"></div>
+            </div>
+            {% endblock mainmenu %}
+
+
+            <table class="table-content" border=0 cellpadding="0" cellspacing="0">
+                <tr>
+                    <!-- Sidebar слева -->
+
+                    <td valign="top" class="left-chapters">
+
+                        <ul id="leftchapters">
+                            {%if cat_selected == 0 %}
+                            <li class="selected"> КАТЕГОРИИ ЛЕКАРСТВ</li><!--ссылка отображается всегда, если ссылка выбрана cat_selected == 0,
+													#то отображать её как текст-->
+                            {% else %}
+                            <li><a href="{% url 'home' %}">КАТЕГОРИИ ЛЕКАРСТВ</a></li><!-- если ссылка не выбрана, отображаем как ссылку
+			на главную страницу-->
+                            {% endif %}
+                            <!-- Вывод рубрик через коллекцию cats -->
+
+                            {% for c in cats %}
+                            <!-- если нет постов рубрике, то не отображается рубрика -->
+                            {% if c.pk == cat_selected %}
+                                {%if c.name != "None" %}
+                                <li class="selected">{{c.name}} <<</li>
+                                {%endif%}
+                            {% else %}
+                                {%if c.name != "None" %}
+                                <li><a href="{{c.get_absolute_url}}">{{c.name}} </a></li>
+                                {%endif%}
+
+                            {% endif %}
+                            {% endfor %}
+
+                        </ul>
+                    </td>
+                    <!-- Конец Sidebar'а -->
+                    <td valign="top" class="content">
+                        <!-- Хлебные крошки -->
+                        {% block breadcrumbs %}
+                        {% endblock %}
+
+                        <!-- Блок контента -->
+                        <div class="content-text">
+                            {% block content %}
+                            {% endblock %}
+                            <!-- ПАГИНАТОРЫ!-->
+                            {% if page_obj.has_other_pages %}<!-- выводит Пагинатор если несколько страниц-->
+                            <nav class="list-pages">
+                                <ul>
+                                    {% if page_obj.has_previos %}<!-- проверка на предыдущую страницу -->
+                                    <li class="page-num">
+                                        <a href="?page={{ page_obj.previous_page_number }}">&lt;</a>
+                                    </li>
+                                    {% endif %}
+                                    {% for p in paginator.page_range %}<!-- page_obj ссылка на конкретную страницу,
+														page_range - возвращает итератор, номер страницы -->
+                                    {% if page_obj.number == p %}
+                                    <!-- чтобы ссылка отображалась как текст при перезоде на страницу -->
+                                    <li class="page-num page-num-selected">
+                                        <a href="?page={{ p}}"> {{ p }}</a>
+                                    </li>
+                                    {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                                    <li class="page-num">
+                                        <a href="?page={{ p}}"> {{ p }}</a>
+                                    </li>
+                                    {% endif%}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}<!-- проверка на следующую страницу -->
+                                    <li class="page-num">
+                                        <a href="?page={{ page_obj.next_page_number }}">&gt;</a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                        </div>
+                        <!-- Конец блока контента -->
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>
+<!-- Конец footer'а и страницы -->
+</body>
+</html>

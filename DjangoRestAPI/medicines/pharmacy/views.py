@@ -2,9 +2,35 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView
 from django.db.models import Q
+from rest_framework import generics
+from rest_framework.response import Response
 
 from .models import *
+from .serializers import AptekaSerializer
 from .utils import *
+
+
+class AptekaAPIView(generics.ListAPIView):
+    def get(self, request):
+        w = Apteka.objects.all()
+        return Response({'posts': AptekaSerializer(w,
+                                                   many=True).data})  # Передаем список полученный из модели, many - что много записей, а не одна
+
+    queryset = Apteka.objects.all()  # выбор данныз из модели
+    serializer_class = AptekaSerializer
+
+    def post(self, request):
+        serializer = AptekaSerializer(data=request.data)  # Проверка корректности данных
+        serializer.is_valid(raise_exception=True)
+
+        post_new = Apteka.objects.create(
+            title=request.data['title'],
+            slug=request.data['slug'],
+            content=request.data['content'],
+            price=request.data['price'],
+            cat_id=request.data['cat_id']
+        )
+        return Response({'post': AptekaSerializer(post_new).data})
 
 
 # Начальная страница через class представления ListView
@@ -30,6 +56,7 @@ class AptekaHome(DataMixin, ListView):  # автоматически форми�
         return Apteka.objects.filter(is_published=True).select_related(
             'cat')  # select_related('cat') - совместно с данными
         # из таблицы Apteka загружает данные из таблицы категории. cat -внешний ключ
+
 
 # отображение поста (конкретной страницы) через class
 class ShowPost(DataMixin, DetailView):
@@ -77,7 +104,7 @@ def search(request):
         if len(posts) == 0:
             posts = Apteka.objects.filter(slug='nobody')
             print(posts)
-        cat_selected=1000
+        cat_selected = 1000
     else:
         posts = Apteka.objects.all()
         cat_selected = 0

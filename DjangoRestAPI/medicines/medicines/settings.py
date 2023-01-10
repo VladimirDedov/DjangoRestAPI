@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pharmacy.apps.PharmacyConfig',#Соблюдать последовательность обязательно!
+    'rest_framework',
     ]
 
 MIDDLEWARE = [

@@ -4,33 +4,38 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import *
 from .serializers import AptekaSerializer
 from .utils import *
 
 
-class AptekaAPIView(generics.ListAPIView):
+class AptekaAPIView(APIView):
     def get(self, request):
         w = Apteka.objects.all()
         return Response({'posts': AptekaSerializer(w,
                                                    many=True).data})  # Передаем список полученный из модели, many - что много записей, а не одна
 
-    queryset = Apteka.objects.all()  # выбор данныз из модели
-    serializer_class = AptekaSerializer
-
     def post(self, request):
         serializer = AptekaSerializer(data=request.data)  # Проверка корректности данных
         serializer.is_valid(raise_exception=True)
+        serializer.save()  # Автоматически вызовет метод create()
+        return Response({'post': serializer.data})
 
-        post_new = Apteka.objects.create(
-            title=request.data['title'],
-            slug=request.data['slug'],
-            content=request.data['content'],
-            price=request.data['price'],
-            cat_id=request.data['cat_id']
-        )
-        return Response({'post': AptekaSerializer(post_new).data})
+    def put(self, request, *args, **kwargs):#Метод для put запроса! Добавить маршрут в url
+        pk = kwargs.get('pk', None)
+        if not pk:
+            return Response({"error": "Method PUT not allowed"})
+        try:
+            instance = Apteka.objects.get(pk=pk)
+        except:
+            return Response({"error": "Objects does not exist"})
+
+        serializer = AptekaSerializer(data=request.data, instance=instance)#instance - запись которую собираемся менять
+        serializer.is_valid(raise_exception=True)
+        serializer.save()#Автоматически вызывает метод update
+        return Response({"post": serializer.data})
 
 
 # Начальная страница через class представления ListView

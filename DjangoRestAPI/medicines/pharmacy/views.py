@@ -11,31 +11,46 @@ from .serializers import AptekaSerializer
 from .utils import *
 
 
-class AptekaAPIView(APIView):
-    def get(self, request):
-        w = Apteka.objects.all()
-        return Response({'posts': AptekaSerializer(w,
-                                                   many=True).data})  # Передаем список полученный из модели, many - что много записей, а не одна
+#Класс реализует два метода get and post. Обязательно связать с маршрутом
+class AptekaAPIList(generics.ListCreateAPIView):
+    queryset = Apteka.objects.all()#Ссылка на список данных, возвращаемых клиенту
+    serializer_class = AptekaSerializer# Сериализатор, который применятеся для сериализации
 
-    def post(self, request):
-        serializer = AptekaSerializer(data=request.data)  # Проверка корректности данных
-        serializer.is_valid(raise_exception=True)
-        serializer.save()  # Автоматически вызовет метод create()
-        return Response({'post': serializer.data})
+#Класс для изменения данных в БД
+class AptekaAPIUpdate(generics.UpdateAPIView):
+    queryset = Apteka.objects.all()#Когда отрабатывает запрос, клиенту отправляется одна изменная запись
+    serializer_class = AptekaSerializer
 
-    def put(self, request, *args, **kwargs):#Метод для put запроса! Добавить маршрут в url
-        pk = kwargs.get('pk', None)
-        if not pk:
-            return Response({"error": "Method PUT not allowed"})
-        try:
-            instance = Apteka.objects.get(pk=pk)
-        except:
-            return Response({"error": "Objects does not exist"})
-
-        serializer = AptekaSerializer(data=request.data, instance=instance)#instance - запись которую собираемся менять
-        serializer.is_valid(raise_exception=True)
-        serializer.save()#Автоматически вызывает метод update
-        return Response({"post": serializer.data})
+#Класс для удаления, добавления, создания и изменеия данных в БД
+class AptekaAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Apteka.objects.all()
+    serializer_class = AptekaSerializer
+# Не используем, просто знать как можно делать!
+# class AptekaAPIView(APIView):
+#     def get(self, request):
+#         w = Apteka.objects.all()
+#         return Response({'posts': AptekaSerializer(w,
+#                                                    many=True).data})  # Передаем список полученный из модели, many - что много записей, а не одна
+#
+#     def post(self, request):
+#         serializer = AptekaSerializer(data=request.data)  # Проверка корректности данных
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()  # Автоматически вызовет метод create()
+#         return Response({'post': serializer.data})
+#
+#     def put(self, request, *args, **kwargs):#Метод для put запроса! Добавить маршрут в url
+#         pk = kwargs.get('pk', None)
+#         if not pk:
+#             return Response({"error": "Method PUT not allowed"})
+#         try:
+#             instance = Apteka.objects.get(pk=pk)
+#         except:
+#             return Response({"error": "Objects does not exist"})
+#
+#         serializer = AptekaSerializer(data=request.data, instance=instance)#instance - запись которую собираемся менять
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()#Автоматически вызывает метод update
+#         return Response({"post": serializer.data})
 
 
 # Начальная страница через class представления ListView

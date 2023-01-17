@@ -13,32 +13,29 @@ from .models import *
 #         self.content = content
 
 
-class AptekaSerializer(serializers.Serializer):
-    # class Meta:
-    #     model = Apteka  # указать модель
-    #     fields = ('title', 'cat_id')  # указать поля, которые передавать в API
-    # title = serializers.CharField(max_length=255)  # Поля из класса AptecaModel
-    # content = serializers.CharField()
-    title = serializers.CharField(max_length=255)
-    slug = serializers.CharField(max_length=255)
-    content = serializers.CharField()
-    price = serializers.CharField(max_length=10)
-    is_published = serializers.BooleanField(default=True, read_only=True)#read_only - необязательное поле
-    cat_id = serializers.IntegerField()
+class AptekaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Apteka
+        fields = ('id','title', 'slug', 'content', 'price', 'cat')
 
-#Добавление данных в БД
-    def create(self, validated_data):#Медот добавления данных в БД, запускается при валидации данных
-        return Apteka.objects.create(**validated_data)
 
-#Изменение данных записи в БД
-    def update(self, instance, validated_data):#instance - объект модели Apteka
-        instance.title = validated_data.get('title', instance)
-        instance.slug = validated_data.get('slug', instance)
-        instance.content = validated_data.get('content', instance)
-        instance.price = validated_data.get('price', instance)
-        instance.is_published = validated_data.get('is_publisher', instance)
-        instance.cat_id = validated_data.get('cat_id', instance)
-        return instance
+
+
+
+
+#Добавление данных в БД только с классом Serializer
+#     def create(self, validated_data):#Медот добавления данных в БД, запускается при валидации данных
+#         return Apteka.objects.create(**validated_data)
+#
+# #Изменение данных записи в БД
+#     def update(self, instance, validated_data):#instance - объект модели Apteka
+#         instance.title = validated_data.get('title', instance)
+#         instance.slug = validated_data.get('slug', instance)
+#         instance.content = validated_data.get('content', instance)
+#         instance.price = validated_data.get('price', instance)
+#         instance.is_published = validated_data.get('is_publisher', instance)
+#         instance.cat_id = validated_data.get('cat_id', instance)
+#         return instance
 #Создание json строки
 # def encode():
 #     model = AptekaModel('Andjelina djoli', 'Content: Andjrlina Djoli')

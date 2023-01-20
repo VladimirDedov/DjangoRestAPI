@@ -1,5 +1,6 @@
 from django.urls import reverse, reverse_lazy  # reverse функция возвращающая нужный адресс
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Apteka(models.Model):  # таблица в БД будет называться как имя класса Apteka.
@@ -10,6 +11,7 @@ class Apteka(models.Model):  # таблица в БД будет называт�
     is_published = models.BooleanField(default=True, verbose_name="опубликовано")
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, null=True,
                             verbose_name="Категория")  # будет добавлено поле cat_id id - автоматически 'Category' - ссылка на модель Category
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, default=1)
 
     def __str__(self):  # выводит заголовок текущей записи
         return self.title

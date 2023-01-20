@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pharmacy.apps.PharmacyConfig',  # Соблюдать последовательность обязательно!
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -140,5 +142,13 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',  # разрешает/запрещает работу с API через браузер
-    ]
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [  # ограничение доступа по усмолчанию для все url
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',#Разрешить аутенфикацию по токенам
+        'rest_framework.authentication.BasicAuthentication',#Аутентификация по сессиям по умолчанию Rest_framework'a
+        'rest_framework.authentication.SessionAuthentication'#Аутентификация по сессиям по умолчанию Rest_framework'a
+        ],
 }

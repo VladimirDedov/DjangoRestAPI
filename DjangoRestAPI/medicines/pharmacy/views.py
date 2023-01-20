@@ -2,29 +2,44 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView
 from django.db.models import Q
-from rest_framework import generics
+from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import *
 
 from .models import *
 from .serializers import AptekaSerializer
 from .utils import *
 
-
-#Класс реализует два метода get and post. Обязательно связать с маршрутом
-class AptekaAPIList(generics.ListCreateAPIView):
-    queryset = Apteka.objects.all()#Ссылка на список данных, возвращаемых клиенту
+class AptekaViewSet(viewsets.ModelViewSet):
+    queryset = Apteka.objects.all()  # Ссылка на список данных, возвращаемых клиенту
     serializer_class = AptekaSerializer# Сериализатор, который применятеся для сериализации
-
-#Класс для изменения данных в БД
-class AptekaAPIUpdate(generics.UpdateAPIView):
-    queryset = Apteka.objects.all()#Когда отрабатывает запрос, клиенту отправляется одна изменная запись
-    serializer_class = AptekaSerializer
-
-#Класс для удаления, добавления, создания и изменеия данных в БД
-class AptekaAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Apteka.objects.all()
-    serializer_class = AptekaSerializer
+    permission_classes = (IsAuthenticated,)#Ограничение одступа только для авторизованных пользователей
+    def get_queryset(self):# Метод возвращает список определенных данных. МОжно переопределять
+        pk = self.kwargs.get('pk')# Получаем РК из словаря kwargs методом get
+        if not pk:
+            return Apteka.objects.all()[:3]# первые три записи из запроса
+        return Apteka.objects.filter(pk=pk)
+    #Добавление маршрутов, не входящих  в routers
+    @action(methods=['get'], detail=True) #Defaul False возвращать список, True - одну запись
+    def category(self, request, pk):# Для взятия одной категории
+        cats = Category.objects.get(pk=pk)
+        return Response({'cats': cats.name})
+#Класс реализует два метода get and post. Обязательно связать с маршрутом
+# class AptekaAPIList(generics.ListCreateAPIView):
+#     queryset = Apteka.objects.all()#Ссылка на список данных, возвращаемых клиенту
+#     serializer_class = AptekaSerializer# Сериализатор, который применятеся для сериализации
+#
+# #Класс для изменения данных в БД
+# class AptekaAPIUpdate(generics.UpdateAPIView):
+#     queryset = Apteka.objects.all()#Когда отрабатывает запрос, клиенту отправляется одна изменная запись
+#     serializer_class = AptekaSerializer
+#
+# #Класс для удаления, добавления, создания и изменеия данных в БД
+# class AptekaAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Apteka.objects.all()
+#     serializer_class = AptekaSerializer
 # Не используем, просто знать как можно делать!
 # class AptekaAPIView(APIView):
 #     def get(self, request):

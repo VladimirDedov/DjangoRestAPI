@@ -14,9 +14,10 @@ from .models import *
 
 
 class AptekaSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault)#Создается скрытое поле с прописанным полем user
     class Meta:
         model=Apteka
-        fields = ('id','title', 'slug', 'content', 'price', 'cat')
+        fields = ('id','title', 'slug', 'content', 'price', 'cat', 'user')
 
 
 
